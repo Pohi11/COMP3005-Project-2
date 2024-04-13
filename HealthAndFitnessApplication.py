@@ -271,42 +271,52 @@ def manage_room_booking():
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT ClassID, RoomID, Schedule FROM Classes;
+                SELECT ClassID, ClassName, RoomID, Schedule, Status FROM Classes;
             """)
             classes = cur.fetchall()
             for cls in classes:
-                print(f"Class ID: {cls[0]}, Room ID: {cls[1]}, Schedule: {cls[2]}")
+                print(f"Class ID: {cls[0]}, Name: {cls[1]}, Room ID: {cls[2]}, Schedule: {cls[3]}, Status: {cls[4]}")
 
     action = input("\nEnter action (add, update, delete): ").lower()
-    class_id = int(input("Enter Class ID: "))
+    if action == 'add':
+        class_name = input("Enter Class Name: ")
+        trainer_id = int(input("Enter Trainer ID: "))
+        room_id = int(input("Enter Room ID: "))
+        schedule = input("Enter Schedule (YYYY-MM-DD HH:MM): ")
+        status = input("Enter Status (Open/Closed): ")
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO Classes (ClassName, TrainerID, RoomID, Schedule, Status) 
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (class_name, trainer_id, room_id, schedule, status))
+                conn.commit()
+                print("New class added and room booking created.")
+    elif action in ['update', 'delete']:
+        class_id = int(input("Enter Class ID: "))
+        if action == 'update':
+            room_id = int(input("Enter new Room ID: "))
+            schedule = input("Enter new Schedule (YYYY-MM-DD HH:MM): ")
+            status = input("Enter new Status (Open/Closed): ")
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        UPDATE Classes
+                        SET RoomID = %s, Schedule = %s, Status = %s
+                        WHERE ClassID = %s;
+                    """, (room_id, schedule, status, class_id))
+                    conn.commit()
+                    print("Room booking updated.")
+        elif action == 'delete':
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        DELETE FROM Classes WHERE ClassID = %s;
+                    """, (class_id,))
+                    conn.commit()
+                    print("Room booking and class deleted.")
 
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            if action == 'add':
-                room_id = int(input("Enter Room ID: "))
-                schedule = input("Enter Schedule (YYYY-MM-DD HH:MM): ")
-                cur.execute("""
-                    INSERT INTO Classes (ClassID, RoomID, Schedule) 
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT (ClassID) DO NOTHING;
-                """, (class_id, room_id, schedule))
-                print("Room booking added.")
-            
-            elif action == 'update':
-                room_id = int(input("Enter new Room ID: "))
-                schedule = input("Enter new Schedule (YYYY-MM-DD HH:MM): ")
-                cur.execute("""
-                    UPDATE Classes
-                    SET RoomID = %s, Schedule = %s
-                    WHERE ClassID = %s;
-                """, (room_id, schedule, class_id))
-                print("Room booking updated.")
 
-            elif action == 'delete':
-                cur.execute("""
-                    DELETE FROM Classes WHERE ClassID = %s;
-                """, (class_id,))
-                print("Room booking deleted.")
 
             
 def monitor_equipment_maintenance():

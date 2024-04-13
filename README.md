@@ -1,6 +1,9 @@
 # COMP3005 Project 2
  COMP3005 Project 2
 
+Youtube video link:
+https://youtu.be/quaB9Hhoj5U
+
 Installation:
 This program is made in python so you must first have python installed.
 
