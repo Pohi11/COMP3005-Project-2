@@ -589,7 +589,7 @@ def main():
                 print("3. Process Payment")
                 print("4. Manage Room Booking")
                 print("5. Create New Class")
-                print("6. Register New Trainer")  # New option to create a trainer
+                print("6. Register New Trainer")  
                 print("7. Back")
                 admin_choice = input("Enter your choice: ")
 
@@ -602,7 +602,7 @@ def main():
                 elif admin_choice == "4":
                     manage_room_booking()
                 elif admin_choice == "5":
-                    create_new_class()  # Call the function to create a new class
+                    create_new_class()  
                 elif admin_choice == "6":
                     create_trainer()  
                 elif admin_choice == "7":
